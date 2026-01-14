@@ -1,38 +1,19 @@
 #!/usr/bin/env bash
+set -e
 
-echo "Choose compiler:"
-echo "1) g++"
-echo "2) clang"
-echo "3) MSVC (cl)"
-read -p "Enter number: " COMPILER_CHOICE
+# ===== CONFIG =====
+COMPILER=g++
+FLAGS="-O3 -march=native -fopenmp"
+INCLUDE="-Iinclude"
+SRC="src/*.cpp"
+OUTPUT="nic"
+# ==================
 
-case "$COMPILER_CHOICE" in
-  1)
-    COMPILER=g++
-    OUTPUT=nic
-    ;;
-  2)
-    COMPILER=clang++
-    OUTPUT=nic
-    ;;
-  3)
-    COMPILER=cl
-    OUTPUT=nic.exe
-    ;;
-  *)
-    echo "Invalid choice"
-    exit 1
-    ;;
-esac
-
-read -p "Enter compiler flags: " FLAGS
-
-echo
-echo "Building..."
+echo "Building with $COMPILER..."
+echo "Flags: $FLAGS"
 echo
 
-if [ "$COMPILER" = "cl" ]; then
-    $COMPILER $FLAGS /Iinclude src/*.cpp /Fe:$OUTPUT
-else
-    $COMPILER $FLAGS -Iinclude src/*.cpp -o $OUTPUT
-fi
+$COMPILER $FLAGS $INCLUDE $SRC -o $OUTPUT
+
+echo
+echo "Build successful: $OUTPUT"
