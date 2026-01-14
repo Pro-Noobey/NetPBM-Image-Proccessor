@@ -1,39 +1,26 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 
-echo Choose compiler:
-echo 1) g++
-echo 2) clang
-echo 3) MSVC (cl)
-set /p COMPILER_CHOICE=Enter number: 
+REM ===== CONFIG =====
+set COMPILER=g++
+set FLAGS=-O3 -march=native -fopenmp
+set INCLUDE=-Iinclude
+set SRC=src\*.cpp
+set OUTPUT=nic.exe
+REM ==================
 
-if "%COMPILER_CHOICE%"=="1" (
-    set COMPILER=g++
-    set OUTPUT=nic.exe
-    set SRC=src\*.cpp
-) else if "%COMPILER_CHOICE%"=="2" (
-    set COMPILER=clang++
-    set OUTPUT=nic.exe
-    set SRC=src\*.cpp
-) else if "%COMPILER_CHOICE%"=="3" (
-    set COMPILER=cl
-    set OUTPUT=nic.exe
-    set SRC=src\*.cpp
-) else (
-    echo Invalid choice
+echo Building with %COMPILER%...
+echo Flags: %FLAGS%
+echo.
+
+%COMPILER% %FLAGS% %INCLUDE% %SRC% -o %OUTPUT%
+
+if errorlevel 1 (
+    echo.
+    echo Build failed.
     exit /b 1
 )
 
-set /p FLAGS=Enter compiler flags: 
-
 echo.
-echo Building...
-echo.
-
-if "%COMPILER%"=="cl" (
-    %COMPILER% %FLAGS% /Iinclude %SRC% /Fe:%OUTPUT%
-) else (
-    %COMPILER% %FLAGS% -Iinclude %SRC% -o %OUTPUT%
-)
-
+echo Build successful: %OUTPUT%
 endlocal
