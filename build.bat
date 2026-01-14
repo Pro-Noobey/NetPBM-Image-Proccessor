@@ -6,7 +6,7 @@ set COMPILER=g++
 set FLAGS=-O3 -march=native -fopenmp
 set INCLUDE=-Iinclude
 set SRC=src\*.cpp
-set OUTPUT=nic.exe
+set OUTPUT=pbmtool.exe
 REM ==================
 
 echo Building with %COMPILER%...
@@ -24,3 +24,4 @@ if errorlevel 1 (
 echo.
 echo Build successful: %OUTPUT%
 endlocal
+
