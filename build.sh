@@ -6,7 +6,7 @@ COMPILER=g++
 FLAGS="-O3 -march=native -fopenmp"
 INCLUDE="-Iinclude"
 SRC="src/*.cpp"
-OUTPUT="nic"
+OUTPUT="pbmtool.exe"
 # ==================
 
 echo "Building with $COMPILER..."
@@ -17,3 +17,4 @@ $COMPILER $FLAGS $INCLUDE $SRC -o $OUTPUT
 
 echo
 echo "Build successful: $OUTPUT"
+
