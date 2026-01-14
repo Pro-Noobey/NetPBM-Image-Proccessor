@@ -4,33 +4,7 @@
 #include <fstream> // file operations
 #include <chrono> // for timing
 #include <sstream> // for I/O
-
-// constants
-const int PBM_ASCII = 1;
-const int PBM_BINARY = 4;
-const int PGM_ASCII = 2;
-const int PGM_BINARY = 5;
-const int PPM_ASCII = 3;
-const int PPM_BINARY = 6;
-const int PAM_BINARY_ASCII = 7;
-
-struct Pixel
-{
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
-};
-
-class Image
-{
-public:
-    int WIDTH;
-    int HEIGHT;
-    int MAXVAL;
-    int TYPE;
-    std::vector<Pixel> data;
-};
+#include "image.h"
 
 
 std::string clean(std::string path)
@@ -68,7 +42,6 @@ Image load_image_pbm(std::string path, bool binary)
 {
     if (binary)
     {
-        // NOTE: something broken
         std::ifstream file(path);
 
         std::string magicnumber;
@@ -264,21 +237,57 @@ int write_image_ppm(std::string path, Image img)
 {
     if (img.TYPE == PPM_BINARY)
     {
-        // very easy just append the raw bytes to the final string
+        std::ofstream file(path, std::ios::binary);
+
+        if (!file) return 1;
+
+        std::string final_string = "P6\n# Made by the coolest Image Proccessor in Town!\n# The NetPBM Image Proccessor!!\n";
+        std::string dimensions = std::to_string(img.WIDTH) + " " + std::to_string(img.HEIGHT);
+        final_string += dimensions;
+        final_string += "\n";
+        final_string += std::to_string(img.MAXVAL);
+        final_string += "\n";
+
+        for (const auto& pixel : img.data)
+        {
+            uint8_t r = pixel.r;
+            uint8_t g = pixel.g;
+            uint8_t b = pixel.b;
+            final_string += r;
+            final_string += g;
+            final_string += b;
+        }
+
+        file << final_string;
+
+        return 0;
     }
+    std::ofstream file(path);
+
+    if (!file) return 1;
+
     std::string final_string = "P3\n# Made by the coolest Image Proccessor in Town!\n# The NetPBM Image Proccessor!!\n";
-    std::string dimensions = img.WIDTH + " " + img.HEIGHT;
+    const std::string dimensions = std::to_string(img.WIDTH) + " " + std::to_string(img.HEIGHT);
     final_string += dimensions;
     final_string += "\n";
-    final_string += img.MAXVAL;
+    final_string += std::to_string(img.MAXVAL);
     final_string += "\n";
 
+    int er, eg, eb;
+    std::string r, g, b;
     for (const auto& pixel : img.data)
     {
-        std::string r(1, static_cast<char>(pixel.r));
-        std::string g(1, static_cast<char>(pixel.g));
-        std::string b(1, static_cast<char>(pixel.b));
-        final_string += r + " " + g + " " + b + "\n";
+        er = static_cast<int>(pixel.r);
+        eg = static_cast<int>(pixel.g);
+        eb = static_cast<int>(pixel.b);
+
+        r = std::to_string(er);
+        g = std::to_string(eg);
+        b = std::to_string(eb);
+        final_string += r + " " + g + " " + b;
+        final_string += "\n";
     }
+
+    file << final_string;
     return 0;
 }

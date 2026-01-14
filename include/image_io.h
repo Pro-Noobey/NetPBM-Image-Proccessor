@@ -10,6 +10,6 @@ class Image;
 Image load_image_pbm(std::string path, bool binary);
 Image load_image_pgm(std::string path, bool binary);
 Image load_image_ppm(std::string path, bool binary);
-
+int write_image_ppm(std::string path, Image img);
 
 #endif

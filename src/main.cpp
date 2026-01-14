@@ -5,34 +5,8 @@
 #include <chrono> // for timing
 #include "ops.h" // for Image operations
 #include "image_io.h" // for Image I/O
+#include "image.h" // For Pixel and Image struct and class
 #include <omp.h> // Parralelelelelleel Proccessing Babyyy
-
-// constants
-const int PBM_ASCII = 1;
-const int PBM_BINARY = 4;
-const int PGM_ASCII = 2;
-const int PGM_BINARY = 5;
-const int PPM_ASCII = 3;
-const int PPM_BINARY = 6;
-const int PAM_BINARY_ASCII = 7;
-
-struct Pixel
-{
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
-};
-
-class Image
-{
-public:
-    int WIDTH;
-    int HEIGHT;
-    int MAXVAL;
-    int TYPE;
-    std::vector<Pixel> data;
-};
 
 Image load_image(std::string path)
 {
@@ -71,7 +45,7 @@ Image load_image(std::string path)
 
 int write_image(std::string path, Image img)
 {
-    if (img.TYPE == PPM_ASCII)
+    if (img.TYPE == PPM_ASCII || img.TYPE == PPM_BINARY)
     {
         return write_image_ppm(path, img);
     }
@@ -87,8 +61,6 @@ std::string input(const std::string& prompt) {
 
 int main() {
 
-    omp_set_num_threads(2);
-
     std::string path = input("enter path\n>>");
     auto start = std::chrono::high_resolution_clock::now();
     Image img = load_image(path);
@@ -102,18 +74,37 @@ int main() {
     
     std::cout << "Image loaded successfully: " << img.WIDTH << "x" << img.HEIGHT << " in " << duration.count() << " milliseconds." << std::endl;
 
-    std::string whatodo = input("What to do with image? : \n1. Blur\n>>");
+    std::string whatodo = input("What to do with image? : \n1. Blur\n2. Nothing (Enter Any or Literally Nothing)\n>>");
+
+    // keep a copy of the image to write later; assign to this if we modify it
+    Image new_img = img;
 
     if (whatodo == "Blur")
     {
         int passes = std::stoi(input("Enter Passes Amount\n>>"));
         int kernel_size = std::stoi(input("Enter Kernel Size\n>>"));
         auto new_start = std::chrono::high_resolution_clock::now();
-        img = blur(img, passes, kernel_size);
+        new_img = blur(img, passes, kernel_size);
         auto new_end = std::chrono::high_resolution_clock::now();
-        auto new_duration = std::chrono::duration_cast<std::chrono::seconds>(new_end - new_start);
+        auto new_duration = std::chrono::duration_cast<std::chrono::milliseconds>(new_end - new_start);
+        std::cout << "\nBlurring Complete! in " << new_duration.count() << " milliseconds" << std::endl;
     }
-    std::cout << "\nBlurring Complete! in " << duration.count() << " seconds" << std::endl;
 
-    return 0;
+    path = input("Enter Path to write to file: ");
+    int code = write_image(path, new_img);
+
+    if (code == 0)
+    {
+        std::cout << "Successfully Wrote to " << path << " Image! Code: " << code << std::endl;
+    }
+    else if (code == 1)
+    {
+        std::cout << "Error with path Code: " << code << std::endl;
+    }
+    else if (code == 2)
+    {
+        std::cout << "Format does not exist Code: " << code << std::endl;
+    }
+
+    return code;
 }
